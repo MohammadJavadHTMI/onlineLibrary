@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS user_books (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    book_id INTEGER NOT NULL,
+    order_id INTEGER NOT NULL,
+    purchased_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id)REFERENCES users(id)ON DELETE RESTRICT,
+    FOREIGN KEY (book_id) REFERENCES books(id)ON DELETE RESTRICT,
+    FOREIGN KEY (order_id)REFERENCES orders(id)ON DELETE RESTRICT,
+    UNIQUE (user_id, book_id)
+);
