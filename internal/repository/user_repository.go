@@ -25,7 +25,7 @@ func DeleteUser(db *sql.DB, id int) error {
 	return nil
 }
 
-func UpdateUser(db *sql.DB, id int64, input model.UpdateUserRepositoryInput) error {
+func UpdateUsers(db *sql.DB, id int64, input model.UpdateUserRepositoryInput) error {
 	var query strings.Builder
 	var args []any
 
@@ -88,7 +88,7 @@ func UpdateUser(db *sql.DB, id int64, input model.UpdateUserRepositoryInput) err
 	return nil
 }
 
-func InsertIntoUser(db *sql.DB, user model.User) (model.User, error) {
+func InsertIntoUsers(db *sql.DB, user model.User) (model.User, error) {
 	if user.Name == "" || user.Email == "" || user.PasswordHash == "" || user.Role == "" {
 		return model.User{}, errors.New("required fields cannot be empty")
 	}
