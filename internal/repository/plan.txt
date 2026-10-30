@@ -1,0 +1,52 @@
+UserRepository:
+[x] GetAllUsers
+[x] GetUserByUsernameOrEmail
+[x] CreateUser
+[x] GetUserByID
+[x] UpdateUser
+[x] DeleteUser
+
+BookRepository:
+[x] CreateBook
+[x] GetBookByID
+[ ] GetAllBooks
+[ ] GetBooksByAuthorID
+[ ] GetBooksByCategoryID
+[ ] SearchBooks
+[x] UpdateBook
+[x] DeleteBook
+
+BookImageRepository:
+[x] CreateBookImage
+[x] GetBookImagesByBookID
+[ ] DeleteBookImage
+[ ] DeleteBookImagesByBookID
+
+CategoryRepository:
+[ ] CreateCategory
+[ ] GetCategoryByID
+[ ] GetAllCategories
+[ ] UpdateCategory
+[ ] DeleteCategory
+
+OrderRepository:
+[ ] CreateOrder
+[ ] GetOrderByID
+[ ] GetOrdersByUserID
+[ ] GetAllOrders
+[ ] UpdateOrderStatus
+[ ] DeleteOrder
+
+OrderItemRepository:
+[ ] CreateOrderItem
+[ ] GetOrderItemByID
+[ ] GetOrderItemsByOrderID
+[ ] DeleteOrderItem
+[ ] DeleteOrderItemsByOrderID
+
+PaymentRepository:
+[ ] CreatePayment
+[ ] GetPaymentByID
+[ ] GetPaymentByOrderID
+[ ] GetPaymentByAuthority
+[ ] UpdatePaymentStatus

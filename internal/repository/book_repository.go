@@ -172,3 +172,44 @@ func GetBookByID(db *sql.DB, bookID int64) (model.Book, error) {
 	book.Images = images
 	return book, nil
 }
+func GetAllBooks(db *sql.DB) ([]model.Book, error) {
+	books := []model.Book{}
+
+	rows, err := db.Query("SELECT id, name, price, description, author_id, category_id, created_at FROM books")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var book model.Book
+		if err := rows.Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt); err != nil {
+			return nil, err
+		}
+		books = append(books, book)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	images, err := GetAllImages(db)
+	if err != nil {
+		return nil, err
+	}
+
+	imagesMap := make(map[int64][]model.BookImage)
+
+	for _, image := range images {
+		imagesMap[image.BookID] = append(imagesMap[image.BookID], image)
+	}
+
+	for i := range books {
+		books[i].Images = imagesMap[books[i].ID]
+		if books[i].Images == nil {
+			books[i].Images = []model.BookImage{}
+		}
+	}
+
+	return books, nil
+}
