@@ -115,13 +115,31 @@ func GetUserByID(db *sql.DB, userID int) (model.User, error) {
 	return user, nil
 }
 func GetAllUsers(db *sql.DB) ([]model.User, error) {
-	db.Query("SELECT user")
+	var users []model.User
+	rows, err := db.Query("SELECT id,username,email,role,created_at FROM users")
+	if err != nil {
+		return []model.User{}, err
+	}
+	defer rows.Close()
 
-	return []model.User{}, nil
+	for rows.Next() {
+		var user model.User
+		err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.CreatedAt)
+		if err != nil {
+			return []model.User{}, err
+		}
+		users = append(users, user)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []model.User{}, err
+	}
+	return users, nil
 }
 func GetUserByUsernameOrEmail(db *sql.DB, identifier string) (model.User, error) {
 	var user model.User
-	err := db.QueryRow("SELECT id,username,password,email,role,create_at user WHERE email = ? OR username = ?", identifier).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.CreatedAt)
+	err := db.QueryRow("SELECT id,username,password,email,role,create_at user WHERE email = ? OR username = ?", identifier).Scan(&user.ID, &user.Name, &user.PasswordHash, &user.Email, &user.Role, &user.CreatedAt)
 	if err != nil {
 		return model.User{}, err
 	}
