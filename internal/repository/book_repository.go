@@ -22,7 +22,7 @@ func InsertIntoBooks(tx *sql.Tx, book model.Book) (model.Book, error) {
 	book.ID = id
 	return book, nil
 }
-func CreateBookWithImages(db *sql.DB, book model.Book, paths []string) error {
+func InsertBookWithImages(db *sql.DB, book model.Book, paths []string) error {
 	var images []model.BookImage
 	tx, err := db.Begin()
 	if err != nil {
@@ -52,4 +52,21 @@ func CreateBookWithImages(db *sql.DB, book model.Book, paths []string) error {
 	}
 	return nil
 
+}
+func DeleteBook(db *sql.DB, bookID int) error {
+	result, err := db.Exec("DELETE FROM users WHERE id = ?", bookID)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 }
