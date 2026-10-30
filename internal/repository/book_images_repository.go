@@ -24,92 +24,17 @@ func InsertIntoBookImages(tx *sql.Tx, images []model.BookImage) ([]model.BookIma
 	return images, nil
 }
 func GetImageByBookID(db *sql.DB, bookID int64) ([]model.BookImage, error) {
-	var images []model.BookImage
-	rows, err := db.Query("SELECT id,path,created_at FROM images WHERE book_id = ?", bookID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var image model.BookImage
-		image.BookID = bookID
-		err := rows.Scan(&image.ID, &image.Path, &image.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		images = append(images, image)
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
+	return QueryImages(db, "SELECT id,book_id,path,created_at FROM book_images WHERE book_id = ?", bookID)
 
-	return images, nil
 }
 func GetAllImages(db *sql.DB) ([]model.BookImage, error) {
-	var images = []model.BookImage{}
-	rows, err := db.Query("SELECT id,book_id,path,created_at FROM book_images")
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var image model.BookImage
-		err = rows.Scan(&image.ID, &image.BookID, &image.Path, &image.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		images = append(images, image)
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-	return images, nil
+	return QueryImages(db, "SELECT id,book_id,path,created_at FROM book_images")
+
 }
 func GetImagesByAuthorID(db *sql.DB, authorID int64) ([]model.BookImage, error) {
-	var images []model.BookImage
+	return QueryImages(db, "SELECT book_images.id, book_images.book_id,book_images.path, book_images.created_at FROM books INNER JOIN book_images ON book_images.book_id = books.id WHERE books.author_id = ? ", authorID)
 
-	rows, err := db.Query("SELECT book_images.id, book_images.book_id,book_images.path, book_images.created_at FROM books INNER JOIN book_images ON book_images.book_id = books.id WHERE books.author_id = ? ", authorID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var image model.BookImage
-		err = rows.Scan(&image.ID, &image.BookID, &image.Path, &image.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		images = append(images, image)
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-	return images, nil
 }
 func GetImagesByCategoryID(db *sql.DB, categoryID int64) ([]model.BookImage, error) {
-	var images []model.BookImage
-
-	rows, err := db.Query("SELECT book_images.id, book_images.book_id,book_images.path, book_images.created_at FROM books INNER JOIN book_images ON book_images.book_id = books.id WHERE books.category_id = ? ", categoryID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var image model.BookImage
-		err = rows.Scan(&image.ID, &image.BookID, &image.Path, &image.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		images = append(images, image)
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
-	return images, nil
+	return QueryImages(db, "SELECT book_images.id, book_images.book_id,book_images.path, book_images.created_at FROM books INNER JOIN book_images ON book_images.book_id = books.id WHERE books.category_id = ? ", categoryID)
 }

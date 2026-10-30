@@ -31,3 +31,26 @@ func QueryBooks(db *sql.DB, query string, args ...any) ([]model.Book, error) {
 
 	return books, nil
 }
+func QueryImages(db *sql.DB, query string, args ...any) ([]model.BookImage, error) {
+	images := []model.BookImage{}
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var image model.BookImage
+		err = rows.Scan(&image.ID, &image.BookID, &image.Path, &image.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		images = append(images, image)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return images, nil
+}
