@@ -13,7 +13,7 @@ func InsertIntoBooks(tx *sql.Tx, book model.Book) (model.Book, error) {
 		return model.Book{}, errors.New("required fields cannot be empty")
 	}
 
-	result, err := tx.Exec(`INSERT INTO books(author_id, category, description, price, name, path)VALUES (?, ?, ?, ?, ?, ?)`, book.AuthorID, book.Category, book.Description, book.Price, book.Name, book.Path)
+	result, err := tx.Exec(`INSERT INTO books(author_id, category_id, description, price, name, path)VALUES (?, ?, ?, ?, ?, ?)`, book.AuthorID, book.Category, book.Description, book.Price, book.Name, book.Path)
 	if err != nil {
 		return model.Book{}, err
 	}
@@ -56,7 +56,7 @@ func InsertBookWithImages(db *sql.DB, book model.Book, paths []string) error {
 
 }
 func DeleteBook(db *sql.DB, bookID int) error {
-	result, err := db.Exec("DELETE FROM users WHERE id = ?", bookID)
+	result, err := db.Exec("DELETE FROM books WHERE id = ?", bookID)
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func UpdateBooks(db *sql.DB, id int64, newBook model.UpdateBookRepositoryInput) 
 		if strings.TrimSpace(*newBook.Category) == "" {
 			return errors.New("category cannot be empty")
 		}
-		query.WriteString("category = ?, ")
+		query.WriteString("category_id = ?, ")
 		args = append(args, strings.TrimSpace(*newBook.Category))
 	}
 
@@ -158,7 +158,7 @@ func UpdateBooks(db *sql.DB, id int64, newBook model.UpdateBookRepositoryInput) 
 }
 func GetBookByID(db *sql.DB, bookID int64) (model.Book, error) {
 	var book model.Book
-	err := db.QueryRow("SELECT id, name, price, description, author_id, category, created_at FROM books WHERE id = ?;", bookID).Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
+	err := db.QueryRow("SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE id = ?;", bookID).Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
 	if err != nil {
 		return model.Book{}, err
 	}
@@ -205,7 +205,7 @@ func GetBooksByAuthorID(db *sql.DB, authorID int64) ([]model.Book, error) {
 
 	var books []model.Book
 
-	rows, err := db.Query("SELECT id, name, price, description, author_id, category, created_at FROM books WHERE author_id = ?;", authorID)
+	rows, err := db.Query("SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE author_id = ?;", authorID)
 	if err != nil {
 		return nil, err
 	}
@@ -224,6 +224,35 @@ func GetBooksByAuthorID(db *sql.DB, authorID int64) ([]model.Book, error) {
 		return nil, err
 	}
 	images, err := GetImagesByAuthorID(db, authorID)
+	if err != nil {
+		return nil, err
+	}
+	books = AttachImagesToBooks(books, images)
+
+	return books, nil
+}
+func GetBooksByCategoryID(db *sql.DB, categoryID int64) ([]model.Book, error) {
+	var books []model.Book
+
+	rows, err := db.Query("SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE category_id = ?;", categoryID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var book model.Book
+		err = rows.Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		books = append(books, book)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	images, err := GetImagesByCategoryID(db, categoryID)
 	if err != nil {
 		return nil, err
 	}
