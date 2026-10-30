@@ -8,7 +8,7 @@ type Book struct {
 	Price       int64       `json:"price"`
 	Description string      `json:"description"`
 	AuthorID    int64       `json:"author_id"`
-	Category    string      `json:"category"`
+	CategoryID  string      `json:"category"`
 	Images      []BookImage `json:"images"`
 	Path        string      `json:"-"`
 	CreatedAt   time.Time   `json:"created_at"`

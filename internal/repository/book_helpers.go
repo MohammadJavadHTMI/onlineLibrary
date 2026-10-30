@@ -17,7 +17,7 @@ func QueryBooks(db *sql.DB, query string, args ...any) ([]model.Book, error) {
 	for rows.Next() {
 		var book model.Book
 
-		err := rows.Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
+		err := rows.Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.CategoryID, &book.CreatedAt)
 		if err != nil {
 			return nil, err
 		}

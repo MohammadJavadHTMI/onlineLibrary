@@ -9,11 +9,11 @@ import (
 )
 
 func InsertIntoBooks(tx *sql.Tx, book model.Book) (model.Book, error) {
-	if book.AuthorID == 0 || book.Category == "" || book.Description == "" || book.CreatedAt.IsZero() || book.Name == "" || book.Path == "" || book.Price == 0 {
+	if book.AuthorID == 0 || book.CategoryID == "" || book.Description == "" || book.CreatedAt.IsZero() || book.Name == "" || book.Path == "" || book.Price == 0 {
 		return model.Book{}, errors.New("required fields cannot be empty")
 	}
 
-	result, err := tx.Exec(`INSERT INTO books(author_id, category_id, description, price, name, path)VALUES (?, ?, ?, ?, ?, ?)`, book.AuthorID, book.Category, book.Description, book.Price, book.Name, book.Path)
+	result, err := tx.Exec(`INSERT INTO books(author_id, category_id, description, price, name, path)VALUES (?, ?, ?, ?, ?, ?)`, book.AuthorID, book.CategoryID, book.Description, book.Price, book.Name, book.Path)
 	if err != nil {
 		return model.Book{}, err
 	}
@@ -159,7 +159,7 @@ func UpdateBooks(db *sql.DB, id int64, newBook model.UpdateBookRepositoryInput) 
 func GetBookByID(db *sql.DB, bookID int64) (model.Book, error) {
 	var book model.Book
 
-	err := db.QueryRow("SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE id = ?", bookID).Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
+	err := db.QueryRow("SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE id = ?", bookID).Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.CategoryID, &book.CreatedAt)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		return model.Book{}, errors.New("book not found")
@@ -217,4 +217,8 @@ func GetBooksByCategoryID(db *sql.DB, categoryID int64) ([]model.Book, error) {
 	books = AttachImagesToBooks(books, images)
 
 	return books, nil
+}
+func SearchBooks(db *sql.DB, keyword string) ([]model.Book, error) {
+	searchTerm := "%" + keyword + "%"
+	return QueryBooks(db, "SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE name LIKE ? OR description LIKE ? ORDER BY name ASC", searchTerm, searchTerm)
 }
