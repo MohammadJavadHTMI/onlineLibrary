@@ -158,41 +158,30 @@ func UpdateBooks(db *sql.DB, id int64, newBook model.UpdateBookRepositoryInput) 
 }
 func GetBookByID(db *sql.DB, bookID int64) (model.Book, error) {
 	var book model.Book
-	err := db.QueryRow("SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE id = ?;", bookID).Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
+
+	err := db.QueryRow("SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE id = ?", bookID).Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
+
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.Book{}, errors.New("book not found")
+	}
 	if err != nil {
 		return model.Book{}, err
 	}
+
 	images, err := GetImageByBookID(db, bookID)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return model.Book{}, errors.New("book not found")
-		}
 		return model.Book{}, err
 	}
+
 	book.Images = images
 	return book, nil
 }
 func GetAllBooks(db *sql.DB) ([]model.Book, error) {
-	books := []model.Book{}
 
-	rows, err := db.Query("SELECT id, name, price, description, author_id, category_id, created_at FROM books")
+	books, err := QueryBooks(db, "SELECT id, name, price, description, author_id, category_id, created_at FROM books")
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var book model.Book
-		if err := rows.Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt); err != nil {
-			return nil, err
-		}
-		books = append(books, book)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
 	images, err := GetAllImages(db)
 	if err != nil {
 		return nil, err
@@ -203,26 +192,11 @@ func GetAllBooks(db *sql.DB) ([]model.Book, error) {
 }
 func GetBooksByAuthorID(db *sql.DB, authorID int64) ([]model.Book, error) {
 
-	var books []model.Book
-
-	rows, err := db.Query("SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE author_id = ?;", authorID)
+	books, err := QueryBooks(db, "SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE author_id = ?;", authorID)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var book model.Book
-		err = rows.Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		books = append(books, book)
-	}
-	err = rows.Err()
-	if err != nil {
-		return nil, err
-	}
 	images, err := GetImagesByAuthorID(db, authorID)
 	if err != nil {
 		return nil, err
@@ -232,23 +206,7 @@ func GetBooksByAuthorID(db *sql.DB, authorID int64) ([]model.Book, error) {
 	return books, nil
 }
 func GetBooksByCategoryID(db *sql.DB, categoryID int64) ([]model.Book, error) {
-	var books []model.Book
-
-	rows, err := db.Query("SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE category_id = ?;", categoryID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var book model.Book
-		err = rows.Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
-		if err != nil {
-			return nil, err
-		}
-		books = append(books, book)
-	}
-	err = rows.Err()
+	books, err := QueryBooks(db, "SELECT id, name, price, description, author_id, category_id, created_at FROM books WHERE category_id = ?;", categoryID)
 	if err != nil {
 		return nil, err
 	}
