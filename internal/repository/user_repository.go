@@ -32,7 +32,7 @@ func UpdateUsers(db *sql.DB, id int64, newUser model.UpdateUserRepositoryInput) 
 	query.WriteString("UPDATE users SET ")
 
 	if newUser.Username != nil {
-		if *newUser.Username == "" {
+		if strings.TrimSpace(*newUser.Username) == "" {
 			return errors.New("username cannot be empty")
 		}
 		args = append(args, *newUser.Username)
@@ -40,7 +40,7 @@ func UpdateUsers(db *sql.DB, id int64, newUser model.UpdateUserRepositoryInput) 
 	}
 
 	if newUser.Email != nil {
-		if *newUser.Email == "" {
+		if strings.TrimSpace(*newUser.Email) == "" {
 			return errors.New("email cannot be empty")
 		}
 		args = append(args, *newUser.Email)
@@ -48,7 +48,7 @@ func UpdateUsers(db *sql.DB, id int64, newUser model.UpdateUserRepositoryInput) 
 	}
 
 	if newUser.PasswordHash != nil {
-		if *newUser.PasswordHash == "" {
+		if strings.TrimSpace(*newUser.PasswordHash) == "" {
 			return errors.New("password hash cannot be empty")
 		}
 
@@ -57,7 +57,7 @@ func UpdateUsers(db *sql.DB, id int64, newUser model.UpdateUserRepositoryInput) 
 	}
 
 	if newUser.Role != nil {
-		if *newUser.Role == "" {
+		if strings.TrimSpace(*newUser.Role) == "" {
 			return errors.New("role cannot be empty")
 		}
 		args = append(args, *newUser.Role)
