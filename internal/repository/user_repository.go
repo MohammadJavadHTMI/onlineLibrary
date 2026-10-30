@@ -139,7 +139,7 @@ func GetAllUsers(db *sql.DB) ([]model.User, error) {
 }
 func GetUserByUsernameOrEmail(db *sql.DB, identifier string) (model.User, error) {
 	var user model.User
-	err := db.QueryRow("SELECT id,username,password,email,role,create_at user WHERE email = ? OR username = ?", identifier).Scan(&user.ID, &user.Name, &user.PasswordHash, &user.Email, &user.Role, &user.CreatedAt)
+	err := db.QueryRow("SELECT id,username,password,email,role,created_at FROM users WHERE email = ? OR username = ?", identifier, identifier).Scan(&user.ID, &user.Name, &user.PasswordHash, &user.Email, &user.Role, &user.CreatedAt)
 	if err != nil {
 		return model.User{}, err
 	}
