@@ -67,3 +67,26 @@ func GetAllImages(db *sql.DB) ([]model.BookImage, error) {
 	}
 	return images, nil
 }
+func GetImagesByAuthorID(db *sql.DB, authorID int64) ([]model.BookImage, error) {
+	var images []model.BookImage
+
+	rows, err := db.Query("SELECT book_images.id, book_images.book_id,book_images.path, book_images.created_at FROM books INNER JOIN book_images ON book_images.book_id = books.id WHERE books.author_id = ? ", authorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var image model.BookImage
+		err = rows.Scan(&image.ID, &image.BookID, &image.Path, &image.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+		images = append(images, image)
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	return images, nil
+}

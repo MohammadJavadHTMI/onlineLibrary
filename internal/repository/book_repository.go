@@ -197,19 +197,37 @@ func GetAllBooks(db *sql.DB) ([]model.Book, error) {
 	if err != nil {
 		return nil, err
 	}
+	books = AttachImagesToBooks(books, images)
 
-	imagesMap := make(map[int64][]model.BookImage)
+	return books, nil
+}
+func GetBooksByAuthorID(db *sql.DB, authorID int64) ([]model.Book, error) {
 
-	for _, image := range images {
-		imagesMap[image.BookID] = append(imagesMap[image.BookID], image)
+	var books []model.Book
+
+	rows, err := db.Query("SELECT id, name, price, description, author_id, category, created_at FROM books WHERE author_id = ?;", authorID)
+	if err != nil {
+		return nil, err
 	}
+	defer rows.Close()
 
-	for i := range books {
-		books[i].Images = imagesMap[books[i].ID]
-		if books[i].Images == nil {
-			books[i].Images = []model.BookImage{}
+	for rows.Next() {
+		var book model.Book
+		err = rows.Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
+		if err != nil {
+			return nil, err
 		}
+		books = append(books, book)
 	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+	images, err := GetImagesByAuthorID(db, authorID)
+	if err != nil {
+		return nil, err
+	}
+	books = AttachImagesToBooks(books, images)
 
 	return books, nil
 }
