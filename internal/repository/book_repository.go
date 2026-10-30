@@ -70,3 +70,7 @@ func DeleteBook(db *sql.DB, bookID int) error {
 
 	return nil
 }
+
+func UpdateBooks() {
+
+}

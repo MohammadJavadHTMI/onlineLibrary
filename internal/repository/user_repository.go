@@ -25,42 +25,42 @@ func DeleteUser(db *sql.DB, id int) error {
 	return nil
 }
 
-func UpdateUsers(db *sql.DB, id int64, input model.UpdateUserRepositoryInput) error {
+func UpdateUsers(db *sql.DB, id int64, newUser model.UpdateUserRepositoryInput) error {
 	var query strings.Builder
 	var args []any
 
 	query.WriteString("UPDATE users SET ")
 
-	if input.Username != nil {
-		if *input.Username == "" {
+	if newUser.Username != nil {
+		if *newUser.Username == "" {
 			return errors.New("username cannot be empty")
 		}
-		args = append(args, *input.Username)
+		args = append(args, *newUser.Username)
 		query.WriteString("username = ?, ")
 	}
 
-	if input.Email != nil {
-		if *input.Email == "" {
+	if newUser.Email != nil {
+		if *newUser.Email == "" {
 			return errors.New("email cannot be empty")
 		}
-		args = append(args, *input.Email)
+		args = append(args, *newUser.Email)
 		query.WriteString("email = ?, ")
 	}
 
-	if input.PasswordHash != nil {
-		if *input.PasswordHash == "" {
+	if newUser.PasswordHash != nil {
+		if *newUser.PasswordHash == "" {
 			return errors.New("password hash cannot be empty")
 		}
 
-		args = append(args, *input.PasswordHash)
+		args = append(args, *newUser.PasswordHash)
 		query.WriteString("password = ?, ")
 	}
 
-	if input.Role != nil {
-		if *input.Role == "" {
+	if newUser.Role != nil {
+		if *newUser.Role == "" {
 			return errors.New("role cannot be empty")
 		}
-		args = append(args, *input.Role)
+		args = append(args, *newUser.Role)
 		query.WriteString("role = ?, ")
 	}
 
