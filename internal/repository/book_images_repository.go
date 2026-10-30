@@ -38,3 +38,13 @@ func GetImagesByAuthorID(db *sql.DB, authorID int64) ([]model.BookImage, error) 
 func GetImagesByCategoryID(db *sql.DB, categoryID int64) ([]model.BookImage, error) {
 	return QueryImages(db, "SELECT book_images.id, book_images.book_id,book_images.path, book_images.created_at FROM books INNER JOIN book_images ON book_images.book_id = books.id WHERE books.category_id = ? ", categoryID)
 }
+func DeleteBookImagesByID(tx *sql.Tx, bookID int) error {
+
+	_, err := tx.Exec("DELETE FROM book_images WHERE book_id = ?", bookID)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

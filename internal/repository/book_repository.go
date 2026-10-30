@@ -56,21 +56,30 @@ func InsertBookWithImages(db *sql.DB, book model.Book, paths []string) error {
 
 }
 func DeleteBook(db *sql.DB, bookID int) error {
-	result, err := db.Exec("DELETE FROM books WHERE id = ?", bookID)
+
+	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
+	defer tx.Rollback()
 
-	rowsAffected, err := result.RowsAffected()
+	err = DeleteBookImagesByID(tx, bookID)
 	if err != nil {
 		return err
 	}
-
-	if rowsAffected == 0 {
-		return sql.ErrNoRows
+	result, err := tx.Exec("DELETE FROM books WHERE id = ?", bookID)
+	if err != nil {
+		return err
+	}
+	i, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if i == 0 {
+		return errors.New("book not found")
 	}
 
-	return nil
+	return tx.Commit()
 }
 
 func UpdateBooks(db *sql.DB, id int64, newBook model.UpdateBookRepositoryInput) error {
