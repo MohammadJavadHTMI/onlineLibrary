@@ -156,3 +156,19 @@ func UpdateBooks(db *sql.DB, id int64, newBook model.UpdateBookRepositoryInput) 
 
 	return nil
 }
+func GetBookByID(db *sql.DB, bookID int64) (model.Book, error) {
+	var book model.Book
+	err := db.QueryRow("SELECT id, name, price, description, author_id, category, created_at FROM books WHERE id = ?;", bookID).Scan(&book.ID, &book.Name, &book.Price, &book.Description, &book.AuthorID, &book.Category, &book.CreatedAt)
+	if err != nil {
+		return model.Book{}, err
+	}
+	images, err := GetImageByBookID(db, bookID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.Book{}, errors.New("book not found")
+		}
+		return model.Book{}, err
+	}
+	book.Images = images
+	return book, nil
+}

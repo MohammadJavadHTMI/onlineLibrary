@@ -23,3 +23,26 @@ func InsertIntoBookImages(tx *sql.Tx, images []model.BookImage) ([]model.BookIma
 	}
 	return images, nil
 }
+func GetImageByBookID(db *sql.DB, bookID int64) ([]model.BookImage, error) {
+	var images []model.BookImage
+	rows, err := db.Query("SELECT id,path,created_at FROM images WHERE book_id = ?", bookID)
+	if err != nil {
+		return []model.BookImage{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var image model.BookImage
+		image.BookID = bookID
+		err := rows.Scan(&image.ID, &image.Path, &image.CreatedAt)
+		if err != nil {
+			return []model.BookImage{}, err
+		}
+		images = append(images, image)
+	}
+	err = rows.Err()
+	if err != nil {
+		return []model.BookImage{}, err
+	}
+
+	return images, nil
+}
