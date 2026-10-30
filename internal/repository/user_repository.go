@@ -106,17 +106,22 @@ func InsertIntoUsers(db *sql.DB, user model.User) (model.User, error) {
 	user.ID = id
 	return user, nil
 }
-func getUserByID(db *sql.DB, userID int) (model.User, error) {
+func GetUserByID(db *sql.DB, userID int) (model.User, error) {
 	var user model.User
-	err := db.QueryRow("SELECT id,username,password,email,role,create_at FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Name, &user.PasswordHash, &user.Email, &user.Role, &user.CreatedAt)
+	err := db.QueryRow("SELECT id,username,email,role,create_at FROM users WHERE id = ?", userID).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.CreatedAt)
 	if err != nil {
 		return model.User{}, err
 	}
 	return user, nil
 }
-func getUserByEmail(db *sql.DB, userEmail string) (model.User, error) {
+func GetAllUsers(db *sql.DB) ([]model.User, error) {
+	db.Query("SELECT user")
+
+	return []model.User{}, nil
+}
+func GetUserByUsernameOrEmail(db *sql.DB, identifier string) (model.User, error) {
 	var user model.User
-	err := db.QueryRow("SELECT id,username,password,email,role,created_at FROM users WHERE email = ?", userEmail).Scan(&user.ID, &user.Name, &user.PasswordHash, &user.Email, &user.Role, &user.CreatedAt)
+	err := db.QueryRow("SELECT id,username,password,email,role,create_at user WHERE email = ? OR username = ?", identifier).Scan(&user.ID, &user.Name, &user.Email, &user.Role, &user.CreatedAt)
 	if err != nil {
 		return model.User{}, err
 	}
